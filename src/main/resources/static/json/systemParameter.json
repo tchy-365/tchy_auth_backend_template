@@ -1,0 +1,14 @@
+{
+    "cmsName": "layui后台管理模版",
+    "version": "v1.0.1",
+    "author": "william:信",
+    "homePage": "page/index.html",
+    "server": "windows",
+    "dataBase": "8.00.2039",
+    "maxUpload": "2M",
+    "userRights": "总管理员",
+    "description": "william:信 2018/11/18",
+    "powerby": "copyright @2018 william:信",
+    "record": "京ICP备14040xxx号-1",
+    "keywords": "william，信，cms，模版"
+}

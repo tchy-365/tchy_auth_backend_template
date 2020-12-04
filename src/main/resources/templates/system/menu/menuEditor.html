@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>Layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+    <script src="/layui/layui.js" charset="utf-8"></script>
+    <script src="/http/ajaxUtils.js"></script>
+</head>
+<body>
+
+
+<div class="col-sm-12 eq-box-sm">
+    <div class="panel lion-fullHeight">
+        <div class="panel-body">
+            <input type="text" style="display:none" th:text="${id}"/>
+<form class="layui-form" action="">
+    <div class="layui-form-item">
+        <label class="layui-form-label">父级菜单</label>
+        <div class="layui-input-block">
+            <select name="pid" lay-filter="aihao">
+                <option value="">请选择</option>
+                <option th:each="menu:${menuList}" th:value="${menu.id}" th:text="${menu.title}" ></option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">菜单名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="title" lay-verify="title" lay-reqtext="用户名是必填项，岂能为空？" required autocomplete="off" placeholder="请输入菜单名称" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">菜单地址</label>
+        <div class="layui-input-block">
+            <input type="text" name="href" lay-verify="href" lay-reqtext="用户名是必填项，岂能为空？" required autocomplete="off" placeholder="请输入显示地址" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">权限标识</label>
+        <div class="layui-input-block">
+            <input type="text" name="permission" lay-verify="permission" lay-reqtext="用户名是必填项，岂能为空？" placeholder="请输入权限标识" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">是否显示</label>
+        <div class="layui-input-block">
+            <input type="checkbox" checked="checked" value="1" name="showFlag" lay-skin="switch" lay-filter="switchTest" lay-text="开启|关闭">
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">描述</label>
+        <div class="layui-input-block">
+            <textarea placeholder="请输入内容描述" name="remark" class="layui-textarea"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button type="submit" class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['form', 'layedit', 'laydate'], function(){
+        var form = layui.form
+            ,layer = layui.layer
+            ,layedit = layui.layedit
+            ,laydate = layui.laydate;
+        $ = layui.jquery;
+
+        //日期
+        laydate.render({
+            elem: '#date'
+        });
+        laydate.render({
+            elem: '#date1'
+        });
+
+        //选择展示图标
+        function changeIcon(mid){
+            var index = layer.open({
+                type: 2,
+                title: false, //不显示标题栏
+                area: ['80%', '80%'],
+                shade: 0.8,
+                id: 'changeIcon', //设定一个id，防止重复弹出
+                resize: false,
+                closeBtn: false,
+                isOutAnim : false ,
+                btnAlign: 'c',
+                content: '/menu/toIcon'
+            });
+        }
+
+        //自定义验证
+        form.verify({
+            title: function (value) {
+              if(value == ""){
+                  return "请输入菜单名称";
+              }
+            },
+            href: function(value){
+                if(value == ""){
+                    return '请输入菜单地址';
+                }
+            }
+        });
+
+        // 监听指定开关
+        form.on('switch(switchTest)', function(data){
+            $(data.elem).attr('type', 'hidden').val(this.checked ? 1 : 0);
+        });
+
+        //监听提交
+        form.on('submit(demo1)', function(data){
+            var r = postAsyncFalse('/william-menu/saveMenuList',data.field);
+            if(r.code == 200){
+                layer.alert('保存成功', {
+                    title: '信息'
+                });
+                layer.closeAll();
+            }else{
+                layer.alert('保存失败', {
+                    title: '信息'
+                });
+            }
+            return false;
+        });
+    });
+</script>
+
+</body>
+</html>

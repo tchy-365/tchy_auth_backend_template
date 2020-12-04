@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <title>菜单列表</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <link rel="stylesheet" href="/plugins/treetable/css/jquery.treetable.css">
+    <link rel="stylesheet" href="/plugins/bootstrap-table/bootstrap-table.css">
+    <link rel="stylesheet" href="/plugins/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/plugins/treetable/css/jquery.treetable.theme.default.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/plugins/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="/plugins/treetable/js/jquery.treetable.js"></script>
+    <script src="/layui/layui.all.js"></script>
+    <script src="/plugins/bootstrap-table/bootstrap-table.js"></script>
+    <script src="/plugins/bootstrap-table/extensions/group-by-v2/bootstrap-table-group-by.min.js"></script>
+    <script src="/plugins/bootstrap-3.3.7-dist/js/nifty.js"></script>
+    <script src="/http/ajaxUtils.js"></script>
+    <script src="/js/menu/menu.js"></script>
+
+</head>
+<body>
+<div id="test1"></div>
+
+
+<div class="col-sm-12 eq-box-sm">
+    <div class="panel lion-fullHeight">
+        <div class="panel-body">
+            <div class="bootstrap-table">
+                <div class="fixed-table-toolbar">
+                    <div class="bars pull-left">
+                        <a id="add" class="btn btn-info data-toolbar" href="javascript:void(0);"><i class="demo-pli-add"></i> 添加</a>
+                    </div>
+                </div>
+                <div class="fixed-table-container" style="padding-bottom: 0px;">
+                    <div class="fixed-table-body">
+                        <table id="treetable" class="demo-add-niftycheck table table-hover table-striped">
+                            <thead>
+                            <tr>
+                                <th style="width: 250px;"><div class="th-inner">机构名称</div></th>
+                                <th style="width: 50px;"><div class="th-inner">显示图标</div></th>
+                                <th style="width: 350px;"><div class="th-inner">地址</div></th>
+                                <th style="width: 100px;"><div class="th-inner">排序</div></th>
+                                <th style="width: 100px;"><div class="th-inner">是否显示</div></th>
+                                <th style="width: 200px;"><div class="th-inner">权限标识</div></th>
+                                <th style="width: 330px;"><div class="th-inner">操作</div></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="menu:${menuList}" th:data-tt-id="${menu.id}" th:data-tt-parent-id="${menu.pid}">
+                                <td >
+                                    <span th:class="${menu.pid} eq 0? 'folder' : 'file'" th:text="${menu.title}"></span>
+                                </td>
+                                <td style="text-align: center;" th:onclick="'javascript:changeIcon('+${menu.id}+')'" >
+                                    <div >
+                                        <i th:class="${menu.icon}"></i>
+                                    </div>
+                                    <!--<a th:onclick="'javascript:changeIcon('+${menu.id}+')'"  href="javascript:void(0);" >-->
+                                    <!--<i th:class="${menu.icon}"> </i>-->
+                                    <!--</a>-->
+                                </td>
+                                <td th:text="${menu.href}"></td>
+                                <td th:text="${menu.seq}"></td>
+                                <td th:text="${menu.showFlag} eq 1? '显示' : '不显示'"></td>
+                                <td th:text="${menu.permission}"></td>
+                                <td>
+                                    <a class="label label-table label-info" th:onclick="'javascript:getAsyncTrue('+ ${menu.id} +')'" href="javascript:void(0);" >添加下级菜单</a>&nbsp;
+                                    <a class="label label-table label-success" onclick="doPjax('#(ctx)/admin/menu/getEditPage?id=#(m.id)')" href="javascript:void(0);">编辑</a>&nbsp;
+                                    <a class="label label-table label-danger" th:onclick="'javascript:del('+ ${menu.id} +')'" href="javascript:void(0);" >删除</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#treetable").treetable({expandable: true });//树表格
+    $('#treetable').treetable('expandAll');//展开所有
+
+    //添加文章
+    //改变窗口大小时，重置弹窗的高度，防止超出可视区域（如F12调出debug的操作）
+    $(window).one("resize",function(){
+        $("#add").click(function(){
+            var index = layui.layer.open({
+                title : "添加菜单",
+                type : 2,
+                content : "toMenuEditor",
+                success : function(layero, index){
+                    setTimeout(function(){
+                        layui.layer.tips('点击此处返回菜单列表', '.layui-layer-setwin .layui-layer-close', {
+                            tips: 3
+                        });
+                    },1000)
+                }
+            });
+            layui.layer.full(index);
+        })
+    }).resize();
+
+    //    function toMenuEditor(){
+    //        location.href="/index/toMenuEditor";
+    //    }
+
+
+    //删除
+    function del(ids){
+        layer.confirm('确定删除此用户？',{icon:3, title:'提示信息'},function(index){
+            var r = getAsyncTrue("/william-menu/delMenu",ids);
+            if(r.code == 200){
+                layer.msg("删除成功");
+                layer.close(index);
+                location.reload();
+            }else(
+                layer.msg("删除失败")
+            )
+
+        });
+    };
+
+    //选择展示图标
+    function changeIcon(id){
+        $(window).one("resize",function(){
+            var index = layui.layer.open({
+                title : "选择图标",
+                type : 2,
+                content : "toIcon?id=" + id,
+                success : function(layero, index){
+                    setTimeout(function(){
+                        layui.layer.tips('点击此处返回菜单列表', '.layui-layer-setwin .layui-layer-close', {
+                            tips: 3
+                        });
+                    },1000)
+                }
+            });
+            layui.layer.full(index);
+        }).resize();
+    }
+
+</script>
+</body>
+</html>
